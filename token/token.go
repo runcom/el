@@ -3,12 +3,12 @@ package token
 type Type string
 
 const (
-	TypeEOF         TokenType = "end of expression"
-	TypeName        TokenType = "name"
-	TypeNumber      TokenType = "number"
-	TypeString      TokenType = "string"
-	TypeOperator    TokenType = "operator"
-	TypePunctuation TokenType = "punctuation"
+	TypeEOF         Type = "end of expression"
+	TypeName        Type = "name"
+	TypeNumber      Type = "number"
+	TypeString      Type = "string"
+	TypeOperator    Type = "operator"
+	TypePunctuation Type = "punctuation"
 )
 
 type Token struct {
