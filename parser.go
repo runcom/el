@@ -18,15 +18,15 @@ var BinaryOperators map[string]Operator
 
 func init() {
 	UnaryOperators = make(map[string]Operator)
-	UnaryOperators["not"] = Operator{Precedence: 50, Associativity: NoAssociativity}
+	//UnaryOperators["not"] = Operator{Precedence: 50, Associativity: NoAssociativity}
 	UnaryOperators["!"] = Operator{Precedence: 50, Associativity: NoAssociativity}
 	UnaryOperators["-"] = Operator{Precedence: 500, Associativity: NoAssociativity}
 	UnaryOperators["+"] = Operator{Precedence: 500, Associativity: NoAssociativity}
 
 	BinaryOperators = make(map[string]Operator)
-	BinaryOperators["or"] = Operator{Precedence: 10, Associativity: AssociativityOpLeft}
+	//BinaryOperators["or"] = Operator{Precedence: 10, Associativity: AssociativityOpLeft}
 	BinaryOperators["||"] = Operator{Precedence: 10, Associativity: AssociativityOpLeft}
-	BinaryOperators["and"] = Operator{Precedence: 15, Associativity: AssociativityOpLeft}
+	//BinaryOperators["and"] = Operator{Precedence: 15, Associativity: AssociativityOpLeft}
 	BinaryOperators["&&"] = Operator{Precedence: 15, Associativity: AssociativityOpLeft}
 	BinaryOperators["=="] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	BinaryOperators["!="] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
@@ -34,9 +34,9 @@ func init() {
 	BinaryOperators[">"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	BinaryOperators["<="] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	BinaryOperators[">="] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
-	BinaryOperators["in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
-	BinaryOperators["not in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
-	BinaryOperators["matches"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
+	//BinaryOperators["in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
+	//BinaryOperators["not in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
+	//BinaryOperators["matches"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	BinaryOperators["+"] = Operator{Precedence: 30, Associativity: AssociativityOpLeft}
 	BinaryOperators["-"] = Operator{Precedence: 30, Associativity: AssociativityOpLeft}
 	BinaryOperators["*"] = Operator{Precedence: 60, Associativity: AssociativityOpLeft}
