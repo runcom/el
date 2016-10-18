@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -57,30 +58,58 @@ func Tokenize(expression string) (*TokenStream, error) {
 			continue
 		}
 		if m := numRegexp.FindStringIndex(expression[cursor:]); len(m) != 0 {
-			tokens = append(tokens, token.Token{Value: expression[cursor+m[0] : cursor+m[1]], Type: token.TypeNumber, Cursor: cursor + 1})
+			t := token.Token{
+				Value:  expression[cursor+m[0] : cursor+m[1]],
+				Type:   token.TypeNumber,
+				Cursor: cursor + 1,
+			}
+			tokens = append(tokens, t)
 			cursor = cursor + (m[1] - m[0])
 		} else if expression[cursor] == '(' || expression[cursor] == '[' || expression[cursor] == '{' {
 			brackets.Push(bracket{char: expression[cursor], cursor: cursor})
-
-			// token = new punctuation token ...
-
+			t := token.Token{
+				Value:  expression[cursor],
+				Type:   token.TypePunctuation,
+				Cursor: cursor + 1,
+			}
+			tokens = append(tokens, t)
 			cursor++
 		} else if expression[cursor] == ')' || expression[cursor] == ']' || expression[cursor] == '}' {
 			if brackets.Size() == 0 {
-				// error out!!!! unexpected punctuation
-				return nil, nil
+				return nil, fmt.Errorf("unexpected %c", expression[cursor]) // record cursor position as well
 			}
 			b := brackets.Pop()
 			br, ok := b.(bracket)
 			if !ok {
-				// error out!!!
-				return nil, nil
+				// return nil, err
 			}
-			//br.char
-			_ = br
+			var closingBracket byte
+			switch br.char {
+			case '(':
+				closingBracket = ')'
+			case '[':
+				closingBracket = ']'
+			case '{':
+				closingBracket = '}'
+			}
+			if expression[cursor] != closingBracket {
+				return nil, fmt.Errorf("unclosed %c", br.char) // record cursor position as well
+			}
+			t := token.Token{
+				Value:  expression[cursor],
+				Type:   token.TypePunctuation,
+				Cursor: cursor + 1,
+			}
+			tokens = append(tokens, t)
 			cursor++
+		} else { // return unlexable!!!
+			cursor++
+			//continue
+			//return nil, nil
 		}
-		cursor++
+	}
+	if brackets.Size() > 0 {
+		return nil, fmt.Errorf("wtf")
 	}
 	return NewTokenStream(tokens), nil
 }

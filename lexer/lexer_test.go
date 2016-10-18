@@ -8,7 +8,7 @@ import (
 )
 
 func TestTokenize(t *testing.T) {
-	ts, err := lexer.Tokenize("ciao 199d0 ciao483 899 88")
+	ts, err := lexer.Tokenize("ciao({} )(199d0) ciao483 899 88")
 	if err != nil {
 		t.Fatal(err)
 	}
