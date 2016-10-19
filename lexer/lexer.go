@@ -10,6 +10,7 @@ import (
 )
 
 type TokenStream struct {
+	// TODO: consider making some of these fields private (?)
 	Tokens   []token.Token
 	Current  token.Token
 	Position int
@@ -20,6 +21,10 @@ func (ts *TokenStream) Next() error {
 	ts.Position++
 	ts.Current = ts.Tokens[ts.Position]
 	return nil
+}
+
+func (ts *TokenStream) Size() int {
+	return len(ts.Tokens)
 }
 
 func (ts *TokenStream) EOF() bool {
@@ -41,6 +46,7 @@ var (
 	// FIXME: golang doesn't support Perl's (?=) see https://github.com/google/re2/wiki/Syntax
 	//operatorsRegexp = regexp.MustCompile(`\Anot in(?=[\s(])|\!\=\=|not(?=[\s(])|and(?=[\s(])|\=\=\=|\>\=|or(?=[\s(])|\<\=|\*\*|\.\.|in(?=[\s(])|&&|\|\||matches|\=\=|\!\=|\*|~|%|\/|\>|\||\!|\^|&|\+|\<|\-`)
 	operatorsRegexp = regexp.MustCompile(`\A\!\=|\=\=|\>\=|\<\=|&&|\|\||\*|\/|\>|\||\!|\+|\<|\-`)
+	namesRegexp     = regexp.MustCompile(`\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*`)
 )
 
 func Tokenize(expression string) (*TokenStream, error) {
@@ -125,14 +131,40 @@ func Tokenize(expression string) (*TokenStream, error) {
 			}
 			tokens = append(tokens, t)
 			cursor = cursor + (m[1] - m[0])
-		} else { // return unlexable!!!
+		} else if expression[cursor] == '.' || expression[cursor] == ',' || expression[cursor] == '?' || expression[cursor] == ':' {
+			t := token.Token{
+				Value:  expression[cursor],
+				Type:   token.TypePunctuation,
+				Cursor: cursor + 1,
+			}
+			tokens = append(tokens, t)
 			cursor++
-			//continue
-			//return nil, nil
+		} else if m := numbersRegexp.FindStringIndex(expression[cursor:]); len(m) != 0 {
+			t := token.Token{
+				Value:  expression[cursor+m[0] : cursor+m[1]],
+				Type:   token.TypeName,
+				Cursor: cursor + 1,
+			}
+			tokens = append(tokens, t)
+			cursor = cursor + (m[1] - m[0])
+		} else { // return unlexable!!!
+			return nil, fmt.Errorf("unlexable")
 		}
 	}
+
+	t := token.Token{
+		Type:   token.TypeEOF,
+		Cursor: cursor + 1,
+	}
+	tokens = append(tokens, t)
+
 	if brackets.Size() > 0 {
-		return nil, fmt.Errorf("wtf")
+		b := brackets.Pop()
+		br, ok := b.(bracket)
+		if !ok {
+			//return nil, nil
+		}
+		return nil, fmt.Errorf("unexpected %c, %d", br.char, br.cursor)
 	}
 	return NewTokenStream(tokens), nil
 }
