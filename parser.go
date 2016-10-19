@@ -23,6 +23,8 @@ func init() {
 	UnaryOperators["-"] = Operator{Precedence: 500, Associativity: NoAssociativity}
 	UnaryOperators["+"] = Operator{Precedence: 500, Associativity: NoAssociativity}
 
+	// TODO(support bitwise operators also)
+
 	BinaryOperators = make(map[string]Operator)
 	//BinaryOperators["or"] = Operator{Precedence: 10, Associativity: AssociativityOpLeft}
 	BinaryOperators["||"] = Operator{Precedence: 10, Associativity: AssociativityOpLeft}
@@ -36,6 +38,7 @@ func init() {
 	BinaryOperators[">="] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	//BinaryOperators["in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	//BinaryOperators["not in"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
+	// either "matches" or tilde (~) for regexp
 	//BinaryOperators["matches"] = Operator{Precedence: 20, Associativity: AssociativityOpLeft}
 	BinaryOperators["+"] = Operator{Precedence: 30, Associativity: AssociativityOpLeft}
 	BinaryOperators["-"] = Operator{Precedence: 30, Associativity: AssociativityOpLeft}

@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -60,7 +61,7 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 			b := brackets.Pop()
 			br, ok := b.(bracket)
 			if !ok {
-				return nil, fmt.Errorf("internal error")
+				return nil, errors.New("internal error")
 			}
 			var closingBracket byte
 			switch br.char {
@@ -129,7 +130,7 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 		b := brackets.Pop()
 		br, ok := b.(bracket)
 		if !ok {
-			return nil, fmt.Errorf("internal error")
+			return nil, errors.New("internal error")
 		}
 		return nil, fmt.Errorf("unexpected %c, %d", br.char, br.cursor)
 	}
