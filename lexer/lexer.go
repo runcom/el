@@ -9,37 +9,6 @@ import (
 	"github.com/runcom/el/token"
 )
 
-type TokenStream struct {
-	// TODO: consider making some of these fields private (?)
-	Tokens   []token.Token
-	Current  token.Token
-	Position int
-}
-
-func (ts *TokenStream) Next() error {
-	// check that ts.Tokens[ts.Position] exists
-	ts.Position++
-	ts.Current = ts.Tokens[ts.Position]
-	return nil
-}
-
-func (ts *TokenStream) Size() int {
-	return len(ts.Tokens)
-}
-
-func (ts *TokenStream) EOF() bool {
-	return ts.Current.Type == token.TypeEOF
-}
-
-func NewTokenStream(tokens []token.Token) *TokenStream {
-	// TODO: check len(tokens) > 0
-	return &TokenStream{
-		Tokens:   tokens,
-		Current:  tokens[0],
-		Position: 0,
-	}
-}
-
 var (
 	numbersRegexp = regexp.MustCompile(`\A[0-9]+(?:\.[0-9]+)?`)
 	stringsRegexp = regexp.MustCompile(`\A("([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"|\A'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)')`)
@@ -49,7 +18,7 @@ var (
 	namesRegexp     = regexp.MustCompile(`\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*`)
 )
 
-func Tokenize(expression string) (*TokenStream, error) {
+func Tokenize(expression string) (*token.TokenStream, error) {
 	expression = strings.Replace(expression, "\r\t\v\f\n", " ", -1)
 	var (
 		cursor   int
@@ -166,5 +135,5 @@ func Tokenize(expression string) (*TokenStream, error) {
 		}
 		return nil, fmt.Errorf("unexpected %c, %d", br.char, br.cursor)
 	}
-	return NewTokenStream(tokens), nil
+	return token.NewTokenStream(tokens), nil
 }
