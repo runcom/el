@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	numbersRegexp = regexp.MustCompile(`\A[0-9]+(?:\.[0-9]+)?`)
+	numbersRegexp = regexp.MustCompile(`\A([0-9]+(?:\.[0-9]+)?)`)
 	stringsRegexp = regexp.MustCompile(`\A("([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"|\A'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)')`)
 	// FIXME: golang doesn't support Perl's (?=) see https://github.com/google/re2/wiki/Syntax
 	//operatorsRegexp = regexp.MustCompile(`\Anot in(?=[\s(])|\!\=\=|not(?=[\s(])|and(?=[\s(])|\=\=\=|\>\=|or(?=[\s(])|\<\=|\*\*|\.\.|in(?=[\s(])|&&|\|\||matches|\=\=|\!\=|\*|~|%|\/|\>|\||\!|\^|&|\+|\<|\-`)
-	operatorsRegexp = regexp.MustCompile(`\A\!\=|\=\=|\>\=|\<\=|&&|\|\||\*|\/|\>|\||\!|\+|\<|\-`)
-	namesRegexp     = regexp.MustCompile(`\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*`)
+	operatorsRegexp = regexp.MustCompile(`\A(\!\=|\=\=|\>\=|\<\=|&&|\|\||\*|\/|\>|\||\!|\+|\<|\-)`)
+	namesRegexp     = regexp.MustCompile(`\A([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)`)
 )
 
 func Tokenize(expression string) (*token.TokenStream, error) {
@@ -30,8 +30,6 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 		char   byte
 		cursor int
 	}
-
-	// TODO(runcom): see https://github.com/symfony/expression-language/blob/master/Lexer.php
 
 	for cursor < end {
 		if expression[cursor] == ' ' {
@@ -62,7 +60,7 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 			b := brackets.Pop()
 			br, ok := b.(bracket)
 			if !ok {
-				// return nil, err
+				return nil, fmt.Errorf("internal error")
 			}
 			var closingBracket byte
 			switch br.char {
@@ -108,7 +106,7 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 			}
 			tokens = append(tokens, t)
 			cursor++
-		} else if m := numbersRegexp.FindStringIndex(expression[cursor:]); len(m) != 0 {
+		} else if m := namesRegexp.FindStringIndex(expression[cursor:]); len(m) != 0 {
 			t := token.Token{
 				Value:  expression[cursor+m[0] : cursor+m[1]],
 				Type:   token.TypeName,
@@ -116,8 +114,8 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 			}
 			tokens = append(tokens, t)
 			cursor = cursor + (m[1] - m[0])
-		} else { // return unlexable!!!
-			return nil, fmt.Errorf("unlexable")
+		} else {
+			return nil, fmt.Errorf("unlexable %c, %d", expression[cursor], cursor)
 		}
 	}
 
@@ -131,7 +129,7 @@ func Tokenize(expression string) (*token.TokenStream, error) {
 		b := brackets.Pop()
 		br, ok := b.(bracket)
 		if !ok {
-			//return nil, nil
+			return nil, fmt.Errorf("internal error")
 		}
 		return nil, fmt.Errorf("unexpected %c, %d", br.char, br.cursor)
 	}
